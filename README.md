@@ -10,7 +10,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 - Instalamos o `nodemon` como dependência do projeto
   - Como se trata de um módulo para uso apenas local, podemos instalar com o comando `npm install --save-dev nodemon`
   - Isso instalará o *nodemon* como devDependency, isto é, que não será usado no ambiente de produção
-- Criamos um arquivo base index.js para ser executado
+- Criamos o diretório *src/* com um arquivo base *src/index.js* para ser executado
   ```javascript
   function welcome() {
     console.log("Hello world!")
@@ -30,7 +30,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 - No terminal, iniciamos o servidor com o script criado, através do comando `npm run dev`, e veremos a saída do comando - "Hello world"
 - Como estamos com o `nodemon` rodando, ao alterarmos o código, veremos a atualização instantânea.
 - Mudando a linha do arquivo *index.js* para `console.log("Hello world from Nodemon")`, veremos a nova mensagem impressa na tela instantaneamento ao salvarmos a mudança no arquivo, ao invés da mensagem original "Hello world!")
-![helloWorldFromNodemon](./images/helloWorldFromNodemon.png)
+![helloWorldFromNodemon](./readme-images/images/helloWorldFromNodemon.png)
 - Para continuar o desenvolvimento do servidor, instalaremos o `express` com o comando `npm install express`
 - Configuramos o express no arquivo *index.js*, refatorando-seu código:
   ```javascript
@@ -39,7 +39,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   const server = express();
 
   server.listen(5000, () => {
-    console.log('Servidor on na porta 5000')
+    console.log('Servidor online na porta 5000')
   })
   ```
 - Uma vez que usamos a sintaxe ES6 para importação de módulos `import express from 'express';`, deveremos comunicar isso ao *package.json*, acresentando a propriedade `"type": "module"`:
@@ -67,3 +67,6 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
     }
   }
   ```
+
+### b) Criando as rotas com Express
+- Criaremos o arquivo routes.js
