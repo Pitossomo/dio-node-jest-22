@@ -1,5 +1,13 @@
 ### Expect 'pong'
 GET http://localhost:5000/ping
 
-### Expect an empty array []
+### Expect an array with all the users
 GET http://localhost:5000/users
+
+### Expect an array with all the users, including the new one posted right now
+POST http://localhost:5000/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Nath"
+}

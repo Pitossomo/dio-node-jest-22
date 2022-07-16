@@ -84,19 +84,18 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   - POST - Criar dados
   - PUT/PATCH - Alterar dados
   - DELETE - Remover dados
-- As respostas às requisições do usuário deverão retornar códigos de status, sendo os mais comuns:
+- As respostas às requisições do usuário deverão retornar códigos de status, por exemplo:
   - 200 - Requisição bem sucedida
   - 201 - Dados criados com sucesso
   - 404 - Página não encontrada
-  - 
-- Populamos o arquivo *src/routes.js* com as rotas, p. ex.:
+-  o arquivo *src/routes.js* com as rotas, p. ex.:
 ```javascript
   [...]
-  routes.get('/ping', (requisition, response) => {
+  routes.get('/ping', (request, response) => {
     return response.status(200).send("pong") 
   })
 
-  routes.get('/users', (requisition, response) => {
+  routes.get('/users', (request, response) => {
     return response.status(200).json(database) 
   })
   [...]
@@ -114,8 +113,36 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   })
 ```
 - Podemos testar nossas rotas fazendo requisições, por meio de uma extensão do VSCode como a [RestClient](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
-- Nesse caso, a seguinte requisição:
-![reqPing](./readme_images/reqPing.png)
-- produzirá a seguinte resposta:
-![resPong](./readme_images/resPong.png)
-  
+- Por exemplo:
+  - a seguinte requisição:
+    - ![reqPing](./readme_images/reqPing.png)
+  - produzirá a seguinte resposta:
+    - ![resPong](./readme_images/resPong.png)
+- Já criamos uma rota para retornar os usuários na database, que foi inicializada como uma array vazia
+- Podemos adicionar uma rota para criarmos novos dados com o método POST
+- MAS, antes disso, devemos configurar o *express* para lermos arquivos *JSON*, no arquivo *index.js*:
+```javascript
+  [...]
+  const server = express();
+  server.use(express.json())
+  server.use(routes); 
+  [...]
+```
+- Importante observarmos a ordem 
+  - a nova instrução `server.use(express.json())`deve vir antes de `server.use(routes)` 
+  - devemos configurar o app para que ele possa ler arquivos JSON antes do Router ser instanciado
+- Agora sim criamos nossa nova rota para o método POST:
+```javascript
+  [...]
+  routes.post('/users', (request, response) => {
+  const newUser = (request.body)    // Get the request's body content, which should be a new user (although we did not validated it yet)   
+  database.push(newUser)            // Put the new user on the database
+  return response.status(200).json(newUser)  // Return the saved user as the response
+  })
+  [...]
+```
+- Realizando o teste manual:
+  - a seguinte requisição:
+    - ![reqPostNewuser](./readme_images/reqPostUser0.png)
+  - terá a seguinte resposta:
+    - ![resPostNewUser](./readme_images/resPostUser0.png)

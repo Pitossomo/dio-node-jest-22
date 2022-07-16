@@ -4,24 +4,18 @@ const routes = Router()
 
 const database = []
 
-routes.get('/ping', (requisition, response) => {
+routes.get('/ping', (request, response) => {
   return response.status(200).send("pong") 
 })
 
-routes.get('/users', (requisition, response) => {
+routes.get('/users', (request, response) => {
   return response.status(200).json(database) 
 })
 
-// GET - ler os dados
-//TODO
-
-// POST - criar dados
-// TODO
-
-// PUT/PATCH - editar dados
-// TODO
-
-// DELETE - apagar dados
-//TODO
+routes.post('/users', (request, response) => {
+  const newUser = (request.body)    // Get the request's body content, which should be a new user (although we did not validated it yet)   
+  database.push(newUser)            // Put the new user on the database
+  return response.status(200).json(newUser)  // Return the saved user as the response
+})
 
 export { routes }
