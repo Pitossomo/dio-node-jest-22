@@ -135,9 +135,9 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 ```javascript
   [...]
   routes.post('/users', (request, response) => {
-  const newUser = (request.body)    // Get the request's body content, which should be a new user (although we did not validated it yet)   
-  database.push(newUser)            // Put the new user on the database
-  return response.status(200).json(newUser)  // Return the saved user as the response
+    const { name } = request.body   // Get the name from request's body content, which should be a new user (although we did not validated it yet)   
+    database.push(name)             // Put the new user on the database
+    return response.status(201).json({'message': `Usuário ${name} criado`})  // Return the saved user name as the response
   })
   [...]
 ```
