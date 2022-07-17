@@ -4,10 +4,21 @@ GET http://localhost:5000/ping
 ### Expect an array with all the users (status code 200)
 GET http://localhost:5000/users
 
-### Expect sucessful user creation (status code 201)
+### Expect:
+### - Status code 201 if sucessful user creation, or 
+### - Status code 403 - Forbidden - if the name is already existing
 POST http://localhost:5000/users HTTP/1.1
 Content-Type: application/json
 
 {
-  "name": "Nath"
+  "name": "João"
 }
+
+### Expect forbidden (403) since the name is empty
+POST http://localhost:5000/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": ""
+}
+

@@ -146,3 +146,69 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
     - ![reqPostNewuser](./readme_images/reqPostUser0.png)
   - terá a seguinte resposta:
     - ![resPostNewUser](./readme_images/resPostUser0.png)
+
+### c) Validações
+- Com o nosso método POST criado, podemos melhorá-lo validando os dados de entrada
+- Rejeitaremos novos usuários com nome em branco ou cujo nome já exista no banco de dados:
+  ```javascript
+    [...]
+    // Validations
+    if (!name || name.length < 1) return response.status(403).json({message: `Não é possível criar usuário sem nome`});
+    if (database.some( el => el.toLowercase() === name.toLowercase())) {
+      return (response.status(403).json({message: `O nome de usuário já existe no banco de dados`}))
+    }
+    [...]
+  ```
+- O código para lidarmos com o método POST se alongou demais, e há o risco de, ao alterá-lo, quebrarmos a rota.
+- Iremos, portanto, criar um controlador *usersController.js* para realizar a manipulação da requisição
+- Isso obedece ao modelo MVC de desenvolvimento, que prega a segregação das funções de:
+  - *Model*, ou modelagem e acesso ao banco de dados
+  - *View*, ou visualização das informações
+  - *Controller*, ou controle e manipulação dos dados
+- No *controller*, também colocaremos a função getAllUsers para lidar com a requisição GET para o endpoint `/users` 
+- Nosso arquivo *usersController.js* ficará assim:
+  ```javascript
+  import userDatabase from "../model/usersDatabase.js";
+
+  const usersController = {
+    getAllUsers (request, response) {
+      return response.status(200).json(userDatabase) 
+    },
+    
+    createUser (request, response) {
+      const { name } = request.body   // Get the name from request's body content, which should be a new user (although we did not validated it yet)   
+    
+      // Validations
+      // Reject empty name
+      if (!name || name.length < 1) return response.status(403).json({message: `Não é possível criar usuário sem nome`});
+      // Reject already existing name
+      if (userDatabase.some(el => el.toLowerCase() === name.toLowerCase())) {
+        return (response.status(403).json({message: `O nome de usuário já existe no banco de dados`}))
+      }
+        
+      userDatabase.push(name)             // Put the new user on the database
+      return response.status(201).json({message: `Usuário ${name} criado`})  // Return the saved user name as the response
+    }
+  }
+
+  export { usersController }
+  ```
+- Por sua vez, o arquivo *routes.js* será simplificado:
+  ```javascript
+  import { Router } from 'express'
+  import { usersController } from './controllers/usersController.js'
+  import userDatabase from './model/usersDatabase.js'
+
+  const routes = Router()
+
+  routes.get('/users', usersController.getAllUsers)
+
+  routes.get('/users', (request, response) => {
+    return response.status(200).json(userDatabase) 
+  })
+
+  routes.post('/users', usersController.createUser)
+
+  export { routes }
+  ```
+- Importante destacar que separamos a base de dados em outro arquivo, *src/model/usersDatabase.js*, conforme dita o padrão MVC
