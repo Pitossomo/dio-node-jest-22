@@ -7,9 +7,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 ### a) Inicializando o servidor
 - Começaremos criando o servidor, sendo necessário instalar o NodeJS e criar o diretório do projeto
 - No terminal, dentro do diretório do projeto, executamos o comando `npm init` para criar o arquivo *package.JSON*
-- Instalamos o `nodemon` como dependência do projeto
-  - Como se trata de um módulo para uso apenas local, podemos instalar com o comando `npm install --save-dev nodemon`
-  - Isso instalará o *nodemon* como devDependency, isto é, que não será usado no ambiente de produção
+- Instalamos o `nodemon` com o comando `npm install nodemon`
 - Criamos o diretório *src/* com um arquivo base *src/index.js* para ser executado
   ```javascript
   function welcome() {
@@ -22,12 +20,12 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   ```javascript
   [...]
     "scripts": {
-    "dev": "nodemon src/index.js",
+    "start": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
   [...]
   ```
-- No terminal, iniciamos o servidor com o script criado, através do comando `npm run dev`, e veremos a saída do comando - "Hello world"
+- No terminal, iniciamos o servidor com o script criado, através do comando `npm start`, e veremos a saída do comando - "Hello world"
 - Como estamos com o `nodemon` rodando, ao alterarmos o código, veremos a atualização instantânea.
 - Mudando a linha do arquivo *index.js* para `console.log("Hello world from Nodemon")`, veremos a nova mensagem impressa na tela instantaneamento ao salvarmos a mudança no arquivo, ao invés da mensagem original "Hello world!")
 ![helloWorldFromNodemon](./readme_images/helloWorldFromNodemon.png)
@@ -51,7 +49,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
     "main": "index.js",
     "type": "module",
       "scripts": {
-      "dev": "nodemon src/index.js",
+      "start": "nodemon src/index.js",
       "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [
@@ -59,11 +57,9 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
     ],
     "author": "Pitossomo",
     "license": "ISC",
-    "devDependencies": {
-      "nodemon": "^2.0.19"
-    },
     "dependencies": {
-      "express": "^4.18.1"
+      "express": "^4.18.1",
+      "nodemon": "^2.0.19"
     }
   }
   ```
@@ -212,3 +208,57 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   export { routes }
   ```
 - Importante destacar que separamos a base de dados em outro arquivo, *src/model/usersDatabase.js*, conforme dita o padrão MVC
+
+## 2. Implementando o Typescript
+### a) Configurando o Typescript
+- Instalamos o typescript com o comando `npm install --save-dev typescript`
+- Inicializamos o typescript no projeto com o comando `npx tsc --init`
+- Instalaremos ainda o *ts-node-dev* com o comando `npm install --save-dev ts-node-dev`, que compila e executa o código Typescript diretamente sem precisarmos fazer as duas etapas separadamente por conta própria
+- Iniciando a refatoração pelo *index.js*, que passará a ser chamar *index.ts*, veremos um alerta para instalarmos o *@types/express*, o qual faremos pelo comando `npm i --save-dev @types/express`  
+- Criamos um script `"start": "ts-node-dev src/index.ts` para inicializar o projeto
+- Será necessário comentarmos por ora as linhas que fazem referência ao arquivo *routes.js* 
+- Em caso de bug, podemos remover a propriedade `"type": "module"` do package-json, bem como remover o arquivo *package-lock.json* ou o diretório *node_modules* e reinstalar os pacotes com o comando `npm install`
+- Também pode ser preciso reiniciar o VSCode
+- Nosso *package.json* atualizado será:
+  ```javascript
+  {
+    "name": "node-and-jest",
+    "version": "1.0.0",
+    "description": "Made for DIO Impuls JS 2022 bootcamp",
+    "main": "index.js",
+    "scripts": {
+      "start": "nodemon src/index.js",
+      "dev": "ts-node-dev src/index.ts",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+      "node;jest;dio;impulso"
+    ],
+    "author": "Pitossomo",
+    "license": "ISC",
+    "devDependencies": {
+      "@types/express": "^4.17.13",
+      "ts-node-dev": "^2.0.0",
+      "typescript": "^4.7.4"
+    },
+    "dependencies": {
+      "nodemon": "^2.0.19",
+      "express": "^4.18.1"
+    }
+  }
+  ```
+- Por enquanto, o arquivo *index.ts* ficará assim:
+  ```javascript
+  import express from 'express';
+  // import { routes } from "routes.js"
+
+  const server = express();
+  server.use(express.json());
+  // server.use(routes)
+
+  server.listen(5000, () => {
+    console.log('Servidor on na porta 5000')
+  });
+  ```
+
+### b) Refatorando o código
