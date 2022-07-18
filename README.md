@@ -317,3 +317,30 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   export { routes }
   ```
 - No arquivo *index.ts*, podemos retirar dos comentários as referências ao *routes.ts* e corrigir sua importação, o que deverá fazer nosso código rodar perfeitamente ao inicializarmos o servidor com o comando `npm run dev`
+- Com nosso código mais uma vez funcionando, poderemos  fazer as requisições manuais para testarmos, com os mesmos resultados anteriores.
+
+## 3. Configurando o JEST
+- Ao implementar o Jest na nossa aplicação, facilitaremos os testes unitários, que serão automatizados e não mais manuais como temos feito
+- Para isso, instalaremos o pacote e seus tipos com o comando `npm install --save-dev jest @types/jest`
+- Executaremos também o comando `npm install --save-dev ts-jest` para usarmos o *jest* e o *Typescript* juntos
+- A instrutora sugere ainda instalarmos a extensão do [Jest Runner](https://marketplace.visualstudio.com/items?itemName=firsttris.vscode-jest-runner) do VSCode para rodar os testes diretamente do código
+- Iniciamos o *jest* no projeto com o comando `npx jest --init` com as seguintes opções:
+  - ![jestInit](./readme_images/jestInit.png)
+- O arquivo *jest.config.ts* será criado na raíz da aplicação, no qual descomentaremos a propriedade `testMatch` para indicar quais arquivos serão usados como arquivos de teste:
+  ```javascript
+  [...]
+  // The glob patterns Jest uses to detect test files
+  testMatch: [
+    "**/__tests__/**/*.[jt]s?(x)",
+    "**/?(*.)+(spec|test).[tj]s?(x)"
+  ],
+  [...]
+  ```
+- Na pasta *controllers*, criaremos o arquivo *usersController.ts* para os testes da classe em questão, e poderemos criar nosso primeiro teste como exemplo:
+  ```javascript
+  describe('Users Controller', () => {
+    it('deve somar 1+1', () => {
+      expect(1+1).toBe(2)
+    })
+  })
+  ```
