@@ -250,7 +250,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 - Por enquanto, o arquivo *index.ts* ficará assim:
   ```javascript
   import express from 'express';
-  // import { routes } from "routes.js"
+  // import { routes } from "./routes.js"
 
   const server = express();
   server.use(express.json());
@@ -262,3 +262,58 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   ```
 
 ### b) Refatorando o código
+- No arquivo *usersDatabase.js*, que passará a ser *usersDatabase.ts*, precisaremos informar o tipo da array, que será uma array de strings:
+  ```javascript
+  const userDatabase: string[] = []
+
+  export default userDatabase
+  ```
+- No arquivo *userController.js*, que passará a ser *userController.ts*, teremos algum trabalho:
+  - Usaremos a sintaxe de classe para o UsersController, que anteriormente era apenas um objeto
+  - Importaremos os tipos Request e Response do express, que serão usados na definição das funções e dos parâmetros
+  - Removeremos a extensão *.ts das importações
+  - Nosso código ficará assim:
+  ```javascript
+  import { Request, Response } from "express";
+  import userDatabase from "../model/usersDatabase";
+
+  export class UsersController {
+    getAllUsers (request: Request, response: Response): Response {
+      return response.status(200).json(userDatabase) 
+    }
+
+    createUser (request: Request, response: Response): Response {
+      const { name } = request.body   // Get the name from request's body content, which should be a new user (although we did not validated it yet)   
+    
+      // Validations
+      // Reject empty name
+      if (!name || name.length < 1) return response.status(403).json({message: `Não é possível criar usuário sem nome`});
+      // Reject already existing name
+      if (userDatabase.some(el => el.toLowerCase() === name.toLowerCase())) {
+        return (response.status(403).json({message: `O nome de usuário já existe no banco de dados`}))
+      }
+        
+      userDatabase.push(name)             // Put the new user on the database
+      return response.status(201).json({message: `Usuário ${name} criado`})  // Return the saved user name as the response
+    }
+  }
+  ```
+- No arquivo *routes.js*, que passará a ser *routes.ts*, devemos instanciar a nova classe UsersController e corrigir sua importação:
+  ```javascript
+  import { Router } from 'express'
+  import { UsersController } from './controllers/usersController'
+
+  const routes = Router()
+  const usersController = new UsersController()
+
+  routes.get('/ping', (request, response) => {
+    return response.status(200).send("pong") 
+  })
+
+  routes.get('/users', usersController.getAllUsers)
+
+  routes.post('/users', usersController.createUser)
+
+  export { routes }
+  ```
+- No arquivo *index.ts*, podemos retirar dos comentários as referências ao *routes.ts* e corrigir sua importação, o que deverá fazer nosso código rodar perfeitamente ao inicializarmos o servidor com o comando `npm run dev`

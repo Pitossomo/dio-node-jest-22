@@ -1,11 +1,13 @@
-import userDatabase from "../model/usersDatabase.js";
+import { Request, Response } from "express";
 
-const usersController = {
-  getAllUsers (request, response) {
+import userDatabase from "../model/usersDatabase";
+
+export class UsersController {
+  getAllUsers (request: Request, response: Response): Response {
     return response.status(200).json(userDatabase) 
-  },
+  }
 
-  createUser (request, response) {
+  createUser (request: Request, response: Response): Response {
     const { name } = request.body   // Get the name from request's body content, which should be a new user (although we did not validated it yet)   
   
     // Validations
@@ -20,5 +22,3 @@ const usersController = {
     return response.status(201).json({message: `Usuário ${name} criado`})  // Return the saved user name as the response
    }
 }
-
-export { usersController }

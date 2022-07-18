@@ -1,7 +1,8 @@
 import { Router } from 'express'
-import { usersController } from './controllers/usersController.ts'
+import { UsersController } from './controllers/usersController'
 
 const routes = Router()
+const usersController = new UsersController()
 
 routes.get('/ping', (request, response) => {
   return response.status(200).send("pong") 
