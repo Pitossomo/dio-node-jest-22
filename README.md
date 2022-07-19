@@ -326,21 +326,47 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 - A instrutora sugere ainda instalarmos a extensão do [Jest Runner](https://marketplace.visualstudio.com/items?itemName=firsttris.vscode-jest-runner) do VSCode para rodar os testes diretamente do código
 - Iniciamos o *jest* no projeto com o comando `npx jest --init` com as seguintes opções:
   - ![jestInit](./readme_images/jestInit.png)
-- O arquivo *jest.config.ts* será criado na raíz da aplicação, no qual descomentaremos a propriedade `testMatch` para indicar quais arquivos serão usados como arquivos de teste:
-  ```javascript
-  [...]
-  // The glob patterns Jest uses to detect test files
-  testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
-    "**/?(*.)+(spec|test).[tj]s?(x)"
-  ],
-  [...]
-  ```
+- O arquivo *jest.config.ts* será criado na raíz da aplicação, e deveremos configurá-lo:
+  - descomentando a propriedade `testMatch` para indicar quais arquivos serão usados como arquivos de teste:
+    ```javascript
+    [...]
+    // The glob patterns Jest uses to detect test files
+    testMatch: [
+      "**/__tests__/**/*.[jt]s?(x)",
+      "**/?(*.)+(spec|test).[tj]s?(x)"
+    ],
+    [...]
+    ```
+  - definindo a propriedade `preset = 'ts-jest'` no arquivo *jest.config.ts*
+    ```javascript
+    [...]
+    // A preset that is used as a base for Jest's configuration
+    preset: 'ts-jest',
+    [...]
+    ```
+
 - Na pasta *controllers*, criaremos o arquivo *usersController.ts* para os testes da classe em questão, e poderemos criar nosso primeiro teste como exemplo:
   ```javascript
   describe('Users Controller', () => {
     it('deve somar 1+1', () => {
       expect(1+1).toBe(2)
+    })
+  })
+  ```
+
+## 4. Padrão AAA
+- Padrão usado para criar testes unitários
+- Padrão AAA ou Triplo A
+  - Arrange - Montagem do cenário de testes
+  - Act - Ação que será testada
+  - Assert - Validação dos resultados esperados
+- Podemos refatorar nosso teste anterior para o padrão AAA:
+  ```javascript
+  describe('Users Controller', () => {
+    it('deve somar 1+1', () => {
+      const sum = (a:number, b: number):number => a+b // Arrange
+      const result = sum(1,1) // Act     
+      expect(result).toBe(2) // Assert
     })
   })
   ```
