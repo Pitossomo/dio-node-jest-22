@@ -263,7 +263,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 
 ### b) Refatorando o código
 - No arquivo *usersDatabase.js*, que passará a ser *usersDatabase.ts*, precisaremos informar o tipo da array, que será uma array de strings:
-  ```javascript
+  ```typescript
   const userDatabase: string[] = []
 
   export default userDatabase
@@ -273,7 +273,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   - Importaremos os tipos Request e Response do express, que serão usados na definição das funções e dos parâmetros
   - Removeremos a extensão *.ts das importações
   - Nosso código ficará assim:
-  ```javascript
+  ```typescript
   import { Request, Response } from "express";
   import userDatabase from "../model/usersDatabase";
 
@@ -299,7 +299,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   }
   ```
 - No arquivo *routes.js*, que passará a ser *routes.ts*, devemos instanciar a nova classe UsersController e corrigir sua importação:
-  ```javascript
+  ```typescript
   import { Router } from 'express'
   import { UsersController } from './controllers/usersController'
 
@@ -361,7 +361,7 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
   - Act - Ação que será testada
   - Assert - Validação dos resultados esperados
 - Podemos refatorar nosso teste anterior para o padrão AAA:
-  ```javascript
+  ```typescript
   describe('Users Controller', () => {
     it('deve somar 1+1', () => {
       const sum = (a:number, b: number):number => a+b // Arrange
@@ -370,3 +370,52 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
     })
   })
   ```
+
+## 5. Mocks e Testes Unitários
+### a) Criando mocks e testes unitários
+- Conceitos:
+  - Mock
+    - objeto que susbtitui implementações reais em um cenário de testes unitários
+    - permite isolar e validar apenas comportamentos específicos
+  - Teste unitário
+    - Tipo mais simples de teste da aplicação
+    - Testa apenas um componente, função ou funcionalidade específica
+- A instrutora forneceu o arquivo *mockResponse.ts*, que ficará na pasta *src/mocks/* e será usado nos testes a serem desenvolvidos:
+  ```typescript
+  import { Response } from 'express'
+
+  export type MockResponse<TResult> = Response & {
+      state: {
+        status?: number;
+        json?: TResult | unknown;
+      }
+    }
+
+  export function makeMockResponse<TResult> () {
+    const response = {
+      state: {
+      }
+    } as MockResponse<TResult>
+
+    response.status = (status: number) => {
+      response.state.status = status
+      return response
+    }
+
+    response.json = (json: TResult) => {
+      response.state.json = json
+      return response
+    }
+
+    return response
+  }
+  ```
+- Testaremos a classe UserController, cujos métodos recebem dois parâmetros, sendo um do tipo Request e outro do tipo Response
+- O código fornecido facilita a criação de uma variável tipo *Response* do express, por meio da função `makeMockResponse`, para ser usada como parâmetro
+- A variável do tipo Request será criado no próprio arquivo de testes
+- Colocaremos alguns usuários iniciais no nosso arquivo *userDatabase.ts*
+  ```javascript
+  const userDatabase: string[] = ['Felipe', 'Nathy', 'Haruo', 'Adriana']
+  export default userDatabase
+  ```
+- Criaremos um novo teste no arquivo *usersController.test.ts*

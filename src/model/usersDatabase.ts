@@ -1,3 +1,3 @@
-const userDatabase: string[] = []
-
-export default userDatabase
+const userDatabase: string[] = ['Felipe', 'Nathy', 'Haruo', 'Adriana']
+  export default userDatabase
+  
