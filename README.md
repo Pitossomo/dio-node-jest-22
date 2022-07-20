@@ -414,8 +414,128 @@ Criaremos um server de teste com uso do `Node` e `Jest` para testes automatizado
 - O código fornecido facilita a criação de uma variável tipo *Response* do express, por meio da função `makeMockResponse`, para ser usada como parâmetro
 - A variável do tipo Request será criado no próprio arquivo de testes
 - Colocaremos alguns usuários iniciais no nosso arquivo *userDatabase.ts*
-  ```javascript
+  ```typescript
   const userDatabase: string[] = ['Felipe', 'Nathy', 'Haruo', 'Adriana']
   export default userDatabase
   ```
-- Criaremos um novo teste no arquivo *usersController.test.ts*
+- Criaremos um novo teste no arquivo *usersController.test.ts* para o método getAllUsers:
+  ```typescript
+  [...]
+  // Arrange
+  const usersController = new UsersController()
+  const mockRequest = {} as Request
+  const mockResponse = makeMockResponse()
+
+  it('Deve listar os nossos usuários', () => {
+    usersController.getAllUsers(mockRequest, mockResponse)  // Act
+
+    // Assert
+    expect(mockResponse.state.status).toBe(200)     // 200 = Status code expected when the method is successful
+    expect(mockResponse.state.json).toHaveLength(4) // 4 = Original size of users' database array
+  })
+  [...]
+  ```
+- Criaremos mais um teste para o método createUser:
+  ```typescript
+  [...]
+  it('Deve criar um novo usuário', () => {
+    mockRequest.body = { name: "Pitossomo" } // Arrange
+
+    usersController.createUser(mockRequest, mockResponse)  // Act
+
+    // Assert
+    expect(mockResponse.state.status).toBe(201)     // 201 = Status code expected when the method is successful
+    expect(mockResponse.state.json).toMatchObject({message: 'Usuário Pitossomo criado'})
+  })
+  ```
+- Criaremos um último teste para o método createUser com o nome de usuário em branco:
+  ```typescript
+  [...]
+  it('Não deve criar um novo usuário com nome em branco', () => {
+    mockRequest.body = { name: "" }
+
+    usersController.createUser(mockRequest, mockResponse)  // Act
+
+    // Assert
+    expect(mockResponse.state.status).toBe(403)
+    expect(mockResponse.state.json).toMatchObject({message: 'Não é possível criar usuário sem nome'})
+  })
+  [...]
+  ```
+- Se tudo correr bem, ao executarmos no console o comando `npm test` veremos a seguinte mensagem:
+  - ![testSuccess](./readme_images//testSuccess.png)
+- Vimos que os testes unitários criados permitem verificar a regularidade da aplicação de forma rápida e automática ainda durante o desenvolvimento
+- Nossa aplicação está passando em todos os testes, mas ainda temos que alterar algumas configurações:
+  - No arquivo *package.json*:
+    - o script *start* prevê rodar o nodemon, mas isso não é possível diretamente com os arquivos em typescript, sendo necessário criar uma etapa de compilação (*build*),
+    - os arquivos javascript podem ser escritos em vários "dialetos", como o "commonjs" ou os módulos ES, logo devemos configurar qual deles será usado nos arquivo.
+    - Nosso arquivo ficará da seguinte forma:
+    ```javascript
+    {
+      "name": "node-and-jest",
+      "version": "1.0.0",
+      "description": "Made for DIO Impuls JS 2022 bootcamp",
+      "main": "index.js",
+      "type": "commonjs",   // Os arquivos javascript serão compilados em commonjs
+      "scripts": {
+        "build": "rm -rf ./build && tsc",   // etapa de compilação anterior ao start
+        "start": "node build/index.js",
+        "dev": "ts-node-dev src/index.ts",
+        "test": "jest"
+      },
+      "keywords": [
+        "node;jest;dio;impulso"
+      ],
+      "author": "Pitossomo",
+      "license": "ISC",
+      "devDependencies": {
+        "@types/express": "^4.17.13",
+        "@types/jest": "^28.1.6",
+        "jest": "^28.1.3",
+        "ts-jest": "^28.0.7",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^4.7.4"
+      },
+      "dependencies": {
+        "express": "^4.18.1",
+        "nodemon": "^2.0.19"
+      }
+    }
+    ```
+  - No arquivo *tsconfig.json*:
+    - devemos informar quais arquivos incluir e quais excluir da compilação (propriedades "include" e "exclude")
+    - devemos informar o mesmo "dialeto" informado no *package.json*, para que o `script start` consiga compreender (propriedades "module": "commomjs", "moduleResolution": "node")
+    - indicar o diretório de saída ("outDir": "./build")
+    - Nosso arquivo *tsconfig.json* ficará da seguinte forma: 
+    ```json
+    {
+      "compilerOptions": {
+        [...]
+        /* Language and Environment */
+        "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+        [...]
+        /* Modules */
+        "module": "commonjs",                                /* Specify what module code is generated. */
+        // "rootDir": "./",                                  /* Specify the root folder within your source files. */
+        "moduleResolution": "node",                       /* Specify how TypeScript looks up a file from a given module specifier. */
+        
+        [...]
+        "outDir": "./build",                                   /* Specify an output folder for all emitted files. */
+        "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+        [...]
+        "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+
+        /* Type Checking */
+        "strict": true,                                      /* Enable all strict type-checking options. */
+
+        /* Completeness */
+        [...]
+        "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+      },
+      "include": [ "src" ],
+      "exclude": [
+        "./**/*.test.ts",
+        "./src/mocks"
+      ]
+    }
+    ```
